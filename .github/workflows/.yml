@@ -3,7 +3,7 @@ name: Periodic Commit
 on:
   schedule:
     # Runs every 3 days at 12:00 UTC
-    - cron: "0 22 */2 * *"
+    - cron: "* * * * *"
 
   workflow_dispatch:
 
