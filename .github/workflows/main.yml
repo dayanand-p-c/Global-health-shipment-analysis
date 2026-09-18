@@ -1,0 +1,42 @@
+name: Daily Auto-Commit
+
+on:
+  schedule:
+    # Runs every day at 09:00 UTC. Adjust to your preferred time.
+    - cron: "42 14 * * *"
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # --- Optional: put your real daily task here (fetch data, regenerate a file, etc.) ---
+      # This step can be replaced or removed — it's independent of the guarantee below.
+      - name: Run daily task
+        run: |
+          echo "Add your real daily task here" > /dev/null
+
+      # --- Guarantees a change exists every run, so the commit/push below never gets skipped ---
+      - name: Ensure there is always something to commit
+        run: |
+          echo "Last run: $(date -u)" > last-run.txt
+
+      - name: Commit and push if there are changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Automated daily update: $(date -u '+%Y-%m-%d')"
+            git push
+          fi
